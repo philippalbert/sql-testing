@@ -8,13 +8,19 @@ import logging
 # sqlalchemy.engine.Engine
 
 class TestSql:
-    """Class to SQL testing
+    """Class for SQL testing
 
-    Class takes provided SQL files and tests it by calling
-        1) path_test_setup
-        2) path_to_call
-        3) path_expected
+    Class takes provided SQL files and tests it. First the test setup file
+    will be triggered. This file contains e.g. INSERT, CREATE, ... statements
+    on which the main statement (in path_to_call) relies on. After this
+    the sql statement which shall be tested will be triggered (in path_to_call).
+    The last step compares the result of the second step with the expected output
+    provided in path_expected.
 
+    :param path_test_setup: path to test setup with sql statements
+    :param path_to_call: path to statement which shall be tested
+    :param path_expected: path to statement with expected output
+    :param engine: sqlalchemy engine (if none provided local sqlite engine will be used)
     """
 
     def __init__(self, path_test_setup, path_to_call, path_expected, engine=None):
