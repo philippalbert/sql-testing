@@ -1,8 +1,11 @@
-from sqlalchemy import create_engine, inspect, MetaData
-from sqlalchemy.orm import sessionmaker
+
 import logging
 import os
 from contextlib import contextmanager
+
+
+from sqlalchemy import create_engine, inspect, MetaData
+from sqlalchemy.orm import sessionmaker
 
 
 # todo: Check if tables in database exist
@@ -65,8 +68,8 @@ class TestSql:
     def execute_multiple_statement(conn, statements):
         """Execute multiple sql statements"""
         # todo:  add try except for crappy sql statements?!
-        for s in statements:
-            conn.execute(s)
+        for statement in statements:
+            conn.execute(statement)
 
     @staticmethod
     def search_db_obj_by_name(engine, name):
@@ -99,12 +102,12 @@ class TestSql:
     def compare_table_values(target, expected):
         """Compare target table output to expected output"""
 
-        for e, t in zip(expected, target):
-            assert e == t, f'Expected (={e}) and result (={t}) is not the same'
+        for exp, tar in zip(expected, target):
+            assert exp == tar, f'Expected (={exp}) and result (={tar}) is not the same'
 
-    # class SqlStatementProperties:
-    #     PRE_TABLE_STATEMENTS = ['select', 'join']
-    #
-    #     def __init__(self, statement):
-    #         self.statement = statement
+# class SqlStatementProperties:
+#     PRE_TABLE_STATEMENTS = ['select', 'join']
+#
+#     def __init__(self, statement):
+#         self.statement = statement
 
