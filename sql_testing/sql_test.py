@@ -21,15 +21,15 @@ class TestSql:
 
     :param path_test_setup: path to test setup with sql statements
     :param path_to_call: path to statement which shall be tested
-    :param path_expected: path to statement with expected output
+    :param target: target table/view where the result can be found
     :param engine: sqlalchemy engine (if none provided local sqlite engine will be used)
     """
 
-    def __init__(self, path_test_setup, path_to_call, path_expected, engine=None):
+    def __init__(self, path_test_setup, path_to_call, target, engine=None):
 
         self.path_test_setup = path_test_setup
         self.path_to_call = path_to_call
-        self.path_expected = path_expected
+        self.target = target
 
         # check if defined files exist
         if not self.check_file_existence():
