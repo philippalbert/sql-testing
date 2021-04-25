@@ -1,5 +1,7 @@
 import sqlalchemy
 import logging
+import os
+from contextlib import contextmanager
 
 
 # todo: Check if tables in database exist
@@ -29,11 +31,26 @@ class TestSql:
         self.path_to_call = path_to_call
         self.path_expected = path_expected
 
+        # check if defined files exist
+        if not self.check_file_existence():
+            raise FileNotFoundError('Input file does not exist')
+
         # if engine is not defined get sqlite as base db
         if engine is None:
             self.engine = sqlalchemy.create_engine('sqlite://')
         else:
             self.engine = engine
+
+    def check_file_existence(self):
+        """check if input files exist"""
+
+        # get class items
+        for var, path in self.__dict__.items():
+            # check if "path_" is included in variable name
+            if 'path_' in var and not os.path.isfile(path):
+                return False
+
+        return True
 
     @staticmethod
     def read_sql_file(path, statement_separator=';'):
