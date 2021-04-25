@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, MetaData
 
 # sqlalchemy.engine.Engine
 
-class TestSql:
+class BaseTest:
     """Class for SQL testing
 
     Class takes provided SQL files and tests it. First the test setup file
