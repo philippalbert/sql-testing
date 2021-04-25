@@ -1,11 +1,8 @@
-
 import logging
 import os
 from contextlib import contextmanager
 
-
-from sqlalchemy import create_engine, inspect, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, MetaData
 
 
 # todo: Check if tables in database exist
@@ -36,8 +33,7 @@ class TestSql:
         self.target = target
 
         # check if defined files exist
-        if not self.check_file_existence():
-            raise FileNotFoundError('Input file does not exist')
+        self.check_file_existence()
 
         # if engine is not defined get sqlite as base db
         if engine is None:
@@ -46,15 +42,20 @@ class TestSql:
             self.engine = engine
 
     def check_file_existence(self):
-        """check if input files exist"""
+        """check if input files exist
 
+        Function checks if files needed for setup and main sql exist.
+        It therefore iterates through the class dictionary and searches
+        for entries with 'path_' specification. If one of the files
+        can not be found an error will be raised.
+
+        :raise FileNotFoundError: if file can not be found
+        """
         # get class items
         for var, path in self.__dict__.items():
             # check if "path_" is included in variable name
             if 'path_' in var and not os.path.isfile(path):
-                return False
-
-        return True
+                raise FileNotFoundError(f'File {path} does not exist')
 
     @staticmethod
     def read_sql_file(path, statement_separator=';'):
@@ -110,4 +111,3 @@ class TestSql:
 #
 #     def __init__(self, statement):
 #         self.statement = statement
-
