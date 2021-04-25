@@ -37,7 +37,7 @@ class TestSql:
 
         # if engine is not defined get sqlite as base db
         if engine is None:
-            self.engine = sqlalchemy.create_engine('sqlite://')
+            self.engine = create_engine('sqlite://')
         else:
             self.engine = engine
 
