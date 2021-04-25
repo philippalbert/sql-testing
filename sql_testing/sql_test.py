@@ -67,3 +67,10 @@ class TestSql:
         # todo:  add try except for crappy sql statements?!
         for s in statements:
             conn.execute(s)
+
+    @staticmethod
+    def search_db_obj_by_name(engine, name):
+        """search a db object like a view or table by name"""
+        meta_data = MetaData(engine)
+        meta_data.reflect(views=True)
+        return meta_data.tables[name]
