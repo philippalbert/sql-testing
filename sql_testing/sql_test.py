@@ -95,7 +95,12 @@ class TestSql:
             # get all entries in table and yield the result
             yield conn.execute(target_table_instance.select()).all()
 
+    @staticmethod
+    def compare_table_values(target, expected):
+        """Compare target table output to expected output"""
 
+        for e, t in zip(expected, target):
+            assert e == t, f'Expected (={e}) and result (={t}) is not the same'
 
     # class SqlStatementProperties:
     #     PRE_TABLE_STATEMENTS = ['select', 'join']
