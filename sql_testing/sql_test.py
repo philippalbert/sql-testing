@@ -74,3 +74,32 @@ class TestSql:
         meta_data = MetaData(engine)
         meta_data.reflect(views=True)
         return meta_data.tables[name]
+
+    @contextmanager
+    def run(self):
+        """run test"""
+
+        statements_test_setup = self.read_sql_file(self.path_test_setup)
+        statements_main_call = self.read_sql_file(self.path_to_call)
+
+        with self.engine.begin() as conn:
+            # execute multiple sql statements to setup testing
+            self.execute_multiple_statement(conn, statements_test_setup)
+
+            # execute main sql statement which shall be tested
+            self.execute_multiple_statement(conn, statements_main_call)
+
+            # get target table instance
+            target_table_instance = self.search_db_obj_by_name(conn, self.target)
+
+            # get all entries in table and yield the result
+            yield conn.execute(target_table_instance.select()).all()
+
+
+
+    # class SqlStatementProperties:
+    #     PRE_TABLE_STATEMENTS = ['select', 'join']
+    #
+    #     def __init__(self, statement):
+    #         self.statement = statement
+
