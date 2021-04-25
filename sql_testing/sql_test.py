@@ -61,11 +61,9 @@ class TestSql:
 
         return file_content.split(statement_separator)
 
-
-
-#class SqlStatementProperties:
-#    PRE_TABLE_STATEMENTS = ['select', 'join']
-#    def __init__(self, statement):
-#
-#        self.statement = statement
-
+    @staticmethod
+    def execute_multiple_statement(conn, statements):
+        """Execute multiple sql statements"""
+        # todo:  add try except for crappy sql statements?!
+        for s in statements:
+            conn.execute(s)
