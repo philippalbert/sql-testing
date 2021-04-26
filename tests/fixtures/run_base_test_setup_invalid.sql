@@ -1,0 +1,4 @@
+CREATE TABLE PEOPLE
+(
+    contact_id INTEGER PRI
+);
