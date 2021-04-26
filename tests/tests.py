@@ -64,7 +64,7 @@ class TestBaseTest(TestCase):
         with base_test.run() as result:
             base_test.compare_table_values(result, expected)
 
-        # check for invalid sql statments
+        # check for invalid sql statements
         base_test = BaseTest(
             path_test_setup="fixtures/run_base_test_setup_invalid.sql",
             path_to_call="fixtures/run_base_test_call.sql",
