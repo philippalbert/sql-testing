@@ -7,8 +7,6 @@ from sqlalchemy import MetaData, create_engine
 # todo: Check if tables in database exist
 # todo: Add cleanup for database via contextmanager
 
-# sqlalchemy.engine.Engine
-
 
 class BaseTest:
     """Class for SQL testing
@@ -64,7 +62,6 @@ class BaseTest:
     @staticmethod
     def execute_multiple_statement(conn, statements):
         """Execute multiple sql statements"""
-        # todo: add try except for crappy sql statements?!
         for statement in statements:
             conn.execute(statement)
 
