@@ -2,6 +2,8 @@ import os
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
+from sqlalchemy.exc import OperationalError
+
 from sql_testing.base_test import BaseTest
 
 
@@ -51,6 +53,7 @@ class TestBaseTest(TestCase):
 
     def test_run(self):
         """test run method"""
+        # check for valid statements
         expected = [(53.5, "USA"), (47.5, "Germany")]
         base_test = BaseTest(
             path_test_setup="fixtures/run_base_test_setup.sql",
@@ -61,12 +64,13 @@ class TestBaseTest(TestCase):
         with base_test.run() as result:
             base_test.compare_table_values(result, expected)
 
+        # check for invalid sql statments
         base_test = BaseTest(
             path_test_setup="fixtures/run_base_test_setup_invalid.sql",
             path_to_call="fixtures/run_base_test_call.sql",
             target="MEAN_AGE_PER_COUNTRY",
         )
 
-        # with self.assertRaises():
-        with base_test.run() as result:
-            base_test.compare_table_values(result, expected)
+        with self.assertRaises(OperationalError):
+            with base_test.run() as result:
+                base_test.compare_table_values(result, expected)
