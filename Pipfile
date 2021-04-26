@@ -9,6 +9,7 @@ sqlalchemy = "*"
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.8"

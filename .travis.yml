@@ -3,11 +3,6 @@ language: python
 python:
   - 3.8
 
-# add github token for private repo if package installation is desired
-before_install:
-- echo -e "machine github.com\n  login $CI_USER_TOKEN" > ~/.netrc
-
-
 install:
   - pipenv install --dev --ignore-pipfile --deploy
 
