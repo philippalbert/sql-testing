@@ -1,6 +1,7 @@
 # SQL Testing
 
-The goal of this project is to simplify SQL testing.
+The goal of this project is to simplify SQL testing in a project setting
+where SQL and Python is used.
 
 ## Motivation
 
@@ -44,7 +45,23 @@ but in a real world setting sql-queries can become pretty long and also hard to 
 So you want to ensure that the output of a query still is the output you would expect
 which is the goal here.
 
+## Use Cases
 
+This package divides SQL testing into two categories
+
+1) General SQL commands
+2) Dialect-specific SQL commands
+
+In general, we don't want to use a productive database for testing. It is preferred
+to use a local one like the internal database provided by Python itself: sqlite.
+Sadly, in some specific cases, where we have to use dialect exclusive expressions
+this is not possible.
+
+### General SQL commands
+
+
+
+### Dialect-specific SQL commands
 
 
 
