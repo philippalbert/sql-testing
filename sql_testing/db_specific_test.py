@@ -58,9 +58,22 @@ class SqlStatementProperties:
 
 class DbSpecificTest(BaseTest):
     def __init__(self, engine, path_test_setup, path_to_call, target):
+        self.engine = engine
 
-        pass
+        # call __init__ of base class to initialize all other parameters
+        # and to check if files provided in path variables exist
+        super().__init__(path_test_setup, path_to_call, target, engine)
+
+        # create instances which include information about provided queries
+        self.setup_properties = SqlStatementProperties(
+            self.read_sql_file(self.path_test_setup)
+        )
+        self.call_properties = SqlStatementProperties(
+            self.read_sql_file(self.path_to_call)
+        )
 
     def run(self):
 
-        pass
+        # get database objects
+        db_objects = self._get_db_objects(self.engine)
+        self.engine
