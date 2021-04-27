@@ -18,9 +18,10 @@ class BaseTest:
     :param path_test_setup: path to test setup with sql statements
     :param path_to_call: path to statement which shall be tested
     :param target: target table/view where the result can be found
+    :param engine: engine to use
     """
 
-    def __init__(self, path_test_setup, path_to_call, target):
+    def __init__(self, path_test_setup, path_to_call, target, engine=None):
 
         self.path_test_setup = path_test_setup
         self.path_to_call = path_to_call
@@ -30,7 +31,8 @@ class BaseTest:
         self.check_file_existence()
 
         # get sqlite engine for non dialect tests
-        self.engine = create_engine("sqlite://")
+        if engine is None:
+            self.engine = create_engine("sqlite://")
 
     def check_file_existence(self):
         """check if input files exist
