@@ -4,9 +4,6 @@ from contextlib import contextmanager
 
 from sqlalchemy import MetaData, create_engine
 
-# todo: Check if tables in database exist
-# todo: Add cleanup for database via contextmanager
-
 
 class BaseTest:
     """Class for SQL testing
