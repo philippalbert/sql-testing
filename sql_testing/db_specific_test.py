@@ -14,34 +14,27 @@ class SqlStatementProperties:
     def __init__(self, statement_list):
         self.statement_list = statement_list
 
-    # @staticmethod
-    # def _get_word_list(statement):
-
     @property
     def tables(self):
         """Get all tables specified in statements"""
-        tables = []
-
-        # iterate over list of statements
-        for statement in self.statement_list:
-            # add tables of all statements to one list
-            tables.extend(self._search_property_name(statement, "PRE_TABLE_STATEMENTS"))
-
-        # get rid of duplicates and return list
-        return list(set(tables))
+        return self._search_statement_list(s_type="PRE_TABLE_STATEMENTS")
 
     @property
     def views(self):
         """Get all views specified in statements"""
-        views = []
+        return self._search_statement_list(s_type="PRE_VIEW_STATEMENTS")
+
+    def _search_statement_list(self, s_type="PRE_TABLE_STATEMENTS"):
+        """Get all objects in statements defined by type"""
+        objects = []
 
         # iterate over list of statements
         for statement in self.statement_list:
-            # add views of all statements to one list
-            views.extend(self._search_property_name(statement, "PRE_VIEW_STATEMENTS"))
+            # add objects of all statements to one list
+            objects.extend(self._search_property_name(statement, s_type))
 
         # get rid of duplicates and return list
-        return list(set(views))
+        return list(set(objects))
 
     def _search_property_name(self, statement, s_type="PRE_TABLE_STATEMENTS"):
         w_list = statement.split()
@@ -73,7 +66,6 @@ class DbSpecificTest(BaseTest):
         )
 
     def run(self):
-
         # get database objects
         db_objects = self._get_db_objects(self.engine)
         self.engine
