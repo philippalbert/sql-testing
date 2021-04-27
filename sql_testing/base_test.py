@@ -66,7 +66,7 @@ class BaseTest:
 
     def _get_db_obj_by_name(self, engine, name):
         """search a db object like a view or table by name"""
-        meta_data = self.search_db_obj(engine)
+        meta_data = self._get_db_objects(engine)
         return meta_data.tables[name]
 
     @staticmethod
