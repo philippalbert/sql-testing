@@ -64,12 +64,17 @@ class BaseTest:
         for statement in statements:
             conn.execute(statement)
 
-    @staticmethod
-    def search_db_obj_by_name(engine, name):
+    def _get_db_obj_by_name(self, engine, name):
         """search a db object like a view or table by name"""
+        meta_data = self.search_db_obj(engine)
+        return meta_data.tables[name]
+
+    @staticmethod
+    def _get_db_objects(engine):
+        """search db objects like views or tables"""
         meta_data = MetaData(engine)
         meta_data.reflect(views=True)
-        return meta_data.tables[name]
+        return meta_data
 
     @contextmanager
     def run(self):
@@ -86,7 +91,7 @@ class BaseTest:
             self.execute_multiple_statement(conn, statements_main_call)
 
             # get target table instance
-            target_table_instance = self.search_db_obj_by_name(conn, self.target)
+            target_table_instance = self._get_db_obj_by_name(conn, self.target)
 
             # get all entries in table and yield the result
             yield conn.execute(target_table_instance.select()).all()
@@ -99,10 +104,3 @@ class BaseTest:
             assert exp == tar, (
                 f"Expected (={exp}) and result (={tar}) is not " f"the same"
             )
-
-
-# class SqlStatementProperties:
-#     PRE_TABLE_STATEMENTS = ['select', 'join']
-#
-#     def __init__(self, statement):
-#         self.statement = statement
