@@ -62,7 +62,8 @@ class BaseTest:
     def execute_multiple_statement(conn, statements):
         """Execute multiple sql statements"""
         for statement in statements:
-            conn.execute(statement)
+            if len(statement.replace(" ", "")) > 0:
+                conn.execute(statement)
 
     def _get_db_obj_by_name(self, engine, name):
         """search a db object like a view or table by name"""
