@@ -16,7 +16,7 @@ def test_your_function():
     db_specific_test = DbSpecificTest(
         path_test_setup="./examples/postgresql_simple_example/postgresql_example_setup.sql",
         path_to_call="./examples/postgresql_simple_example/postgresql_example_call.sql",
-        target="FAMOUS_PEOPLE",
+        target="famous_people",
         engine=engine,
     )
 
