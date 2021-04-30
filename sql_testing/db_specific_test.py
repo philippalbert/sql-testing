@@ -22,12 +22,23 @@ class DbSpecificTest(BaseTest):
         super().__init__(path_test_setup, path_to_call, target, engine)
 
         # create instances which include information about provided queries
-        self.setup_properties = SqlStatementProperties(
-            self.read_sql_file(self.path_test_setup)
+        self.setup_properties = self._get_object_names_from_files(
+            self.path_test_setup, is_call_file=False
         )
-        self.call_properties = SqlStatementProperties(
-            self.read_sql_file(self.path_to_call)
+        self.call_properties = self._get_object_names_from_files(
+            self.path_to_call, is_call_file=True
         )
+
+    def _get_object_names_from_files(self, path, is_call_file=False):
+
+        if path.split(".")[-1] == "sql":
+            return SqlStatementProperties(self.read_sql_file(path))
+        elif path.split(".")[-1] in ["yaml", "yml"]:
+            if not is_call_file:
+                return YamlProperties(self.read_yaml_file(path))
+            NotImplementedError("Call file type should be sql")
+
+        NotImplementedError("Setup is not implemented for this file type")
 
     @staticmethod
     def _get_random_suffix(length=5):
