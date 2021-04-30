@@ -40,3 +40,22 @@ class SqlStatementProperties:
         ]
 
         return table_list
+
+
+class YamlProperties:
+    def __init__(self, config):
+        self.config = config
+
+    @property
+    def tables(self):
+        tables = self.config.get("tables")
+        if tables is None:
+            return []
+        return list(tables.keys())
+
+    @property
+    def views(self):
+        views = self.config.get("views")
+        if views is None:
+            return []
+        return list(views.keys())
