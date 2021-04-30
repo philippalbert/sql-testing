@@ -51,16 +51,19 @@ class BaseTest:
                 raise FileNotFoundError(f"File {path} does not exist")
 
     @staticmethod
-    def read_sql_file(path, statement_separator=";"):
+    def read_sql_file(path, statement_separator=";", mapping_dict=None):
         """Read provided sql file"""
         with open(path, "r") as file:
             file_content = file.read()
 
         return file_content.split(statement_separator)
 
-    @staticmethod
-    def execute_multiple_statement(conn, statements):
+    def execute_files(self, path_to_file, conn):
         """Execute multiple sql statements"""
+
+        # read sql file
+        statements = self.read_sql_file(path_to_file)
+
         for statement in statements:
             if len(statement.replace(" ", "")) > 0:
                 conn.execute(statement)
