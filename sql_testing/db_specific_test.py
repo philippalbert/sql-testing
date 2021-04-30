@@ -105,14 +105,6 @@ class DbSpecificTest(BaseTest):
         # get mapping table names and related suffix
         mapping_dict, suffix = self._get_test_table_mapping_info()
 
-        # create all objects with mapping name
-        statements_test_setup = self.read_sql_file(
-            self.path_test_setup, mapping_dict=mapping_dict
-        )
-        statements_main_call = self.read_sql_file(
-            self.path_to_call, mapping_dict=mapping_dict
-        )
-
         # establish a connection by using a context manager to ensure the connection will be closed
         # after usage.
         with self.engine.connect() as connection:
@@ -121,14 +113,22 @@ class DbSpecificTest(BaseTest):
             transaction = connection.begin()
 
             # execute multiple sql statements to setup testing
-            self.execute_multiple_statement(connection, statements_test_setup)
+            self.execute_files(
+                conn=connection,
+                path_to_file=self.path_test_setup,
+                mapping_dict=mapping_dict,
+            )
 
             # execute main sql statement which shall be tested
-            self.execute_multiple_statement(connection, statements_main_call)
+            self.execute_files(
+                conn=connection,
+                path_to_file=self.path_to_call,
+                mapping_dict=mapping_dict,
+            )
 
             # get target table instance
             target_table_instance = self._get_db_obj_by_name(
-                connection, self.target + "_" + suffix
+                connection, self.target.lower() + "_" + suffix
             )
 
             # get all entries in table and yield the result
