@@ -10,11 +10,7 @@ from sqlalchemy import insert
 from sqlalchemy.schema import CreateTable
 
 from .base_test import BaseTest
-from .sql_statement_properties import SqlStatementProperties
-
-# todo: Check if tables in database exist
-# todo: Add cleanup for database via contextmanager
-# engine = sqlalchemy.create_engine('postgresql://philipp:philipp@localhost:5432/postgres')
+from .sql_statement_properties import SqlStatementProperties, YamlProperties
 
 
 class DbSpecificTest(BaseTest):
