@@ -76,3 +76,18 @@ this is not possible.
       to deliver the SQL statements from the SQLAlchemy to the database
 -  **Dialect** is the system SQLAlchemy uses to communicate with various types
     - The Dialect is created from the supplied connection string
+
+- **Tranaction** with engine.begin() starts a transaction
+    - if transaction is successful it will be committed
+    - if not it will be rolled back
+    - some words to nested transactions
+        - https://docs.sqlalchemy.org/en/14/core/connections.html
+    - The problem is that engine.begin() commits if successful and rollbacks if not
+        - in case are working with a real db we want a rollback even when it was successful
+          because we don't want the tables to remain in the db. Therefore we have to work
+          with `connection = engine.connect()` and `transaction = connection.begin()`
+
+- **INSERT, UPDATE, DELETE, CREATE TABLE, ALTER TABLE** will be autocomitted (if not included in transaction)
+   - can be changed by changing **isolation level**
+    
+- **Reflect** can be used in ORM to obtain already existing db tables 
