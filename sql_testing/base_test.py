@@ -81,15 +81,12 @@ class BaseTest:
     def run(self):
         """run test"""
 
-        statements_test_setup = self.read_sql_file(self.path_test_setup)
-        statements_main_call = self.read_sql_file(self.path_to_call)
-
         with self.engine.begin() as conn:
             # execute multiple sql statements to setup testing
-            self.execute_multiple_statement(conn, statements_test_setup)
+            self.execute_files(conn=conn, path_to_file=self.path_test_setup)
 
             # execute main sql statement which shall be tested
-            self.execute_multiple_statement(conn, statements_main_call)
+            self.execute_files(conn=conn, path_to_file=self.path_to_call)
 
             # get target table instance
             target_table_instance = self._get_db_obj_by_name(conn, self.target)
