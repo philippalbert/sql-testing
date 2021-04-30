@@ -144,8 +144,7 @@ class DbSpecificTest(BaseTest):
         with open(path, "w") as file:
             file.write(statement)
 
-    @staticmethod
-    def _copy_existing_table(conn, table_obj, mapping_dict, number_of_rows=-1):
+    def _copy_existing_table(self, conn, table_obj, mapping_dict, number_of_rows=-1):
         """Copy an existing table structure with an additional suffix"""
 
         # create statement string
@@ -154,27 +153,26 @@ class DbSpecificTest(BaseTest):
         # store rows of original table
         table_entries = conn.execute(table_obj.select()).all()
 
+        # take all data or just a subset of the original table
         if number_of_rows != -1:
             try:
-                subset_entries = random.sample(table_entries, number_of_rows)
+                test_entries = random.sample(table_entries, number_of_rows)
             except ValueError:
                 logging.error(
                     "Number of rows specified in yaml file exceeds rows in table"
                 )
                 raise
+        else:
+            # in case of no subset take the whole data set, hence all entries
+            # in table
+            test_entries = table_entries
 
         # change name
         table_obj.name = mapping_dict[table_obj.name]
 
         # update constraints as we have to make sure that constraints
         # are not named equally to already existing ones
-        new_constraints = []
-        for c in table_obj.constraints:
-            constraint = c
-            constraint.name = (
-                constraint.name + "_" + list(mapping_dict.values())[0].split("_")[-1]
-            )
-            new_constraints.append(constraint)
+        self._change_table_constraints(table_obj, mapping_dict)
 
         # create table object, store it and execute it
         # table_obj.create(conn)
@@ -185,7 +183,7 @@ class DbSpecificTest(BaseTest):
         statement_str += str(create_res) + ";\n"
 
         # add subset of entries
-        for s in subset_entries:
+        for s in test_entries:
             insert_res = insert(table_obj, values=s, bind=conn)
 
             # store insert statements in statement string
@@ -194,6 +192,17 @@ class DbSpecificTest(BaseTest):
             conn.execute(table_obj.insert(s))
 
         return statement_str
+
+    @staticmethod
+    def _change_table_constraints(table_obj, mapping_dict):
+        """Change name of table constraints"""
+        new_constraints = []
+        for c in table_obj.constraints:
+            constraint = c
+            constraint.name = (
+                constraint.name + "_" + list(mapping_dict.values())[0].split("_")[-1]
+            )
+            new_constraints.append(constraint)
 
     @staticmethod
     def read_yaml_file(path):
