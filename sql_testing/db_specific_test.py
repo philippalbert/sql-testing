@@ -231,19 +231,15 @@ class DbSpecificTest(BaseTest):
             # as we don't want the test objects to pollute the database
             transaction = connection.begin()
 
-            # execute multiple sql statements to setup testing
-            self.execute_files(
-                conn=connection,
-                path_to_file=self.path_test_setup,
-                mapping_dict=mapping_dict,
-            )
+            # execute firstly multiple sql statements to setup testing and secondly
+            # the main sql statement
+            for paths in [self.path_test_setup, self.path_to_call]:
 
-            # execute main sql statement which shall be tested
-            self.execute_files(
-                conn=connection,
-                path_to_file=self.path_to_call,
-                mapping_dict=mapping_dict,
-            )
+                self.execute_files(
+                    conn=connection,
+                    path_to_file=paths,
+                    mapping_dict=mapping_dict,
+                )
 
             # get target table instance
             target_table_instance = self._get_db_obj_by_name(
