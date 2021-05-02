@@ -1,0 +1,68 @@
+tables:
+    people_2:
+      exists: False
+      number_of_rows: 5
+      column_names:
+        contact_id:
+          type: Integer
+          values: random
+          value_range: [0, 5]
+          unique: True
+        first_name:
+          type: String
+          values: random
+          unique: False
+        last_name:
+          type: String
+          values: random
+          unique: False
+        email:
+          type: String
+          ignore: True
+        age:
+          type: Integer
+          values: [22, 23, 55, 43, 108]
+        country_id:
+          type: Integer
+          values: [1, 2, 49, 2, 1]
+        is_famous:
+         type: Boolean
+         values: random
+
+    countries:
+      exists: True
+      number_of_rows: 2
+      random_subset: True
+#  - column_names:
+#      - contact_id:
+#          - type: INTEGER
+#          - values:
+#              - random
+#          - unique:
+#              - True
+#      - first_name:
+#          - type: TEXT
+#          - values:
+#              - random
+#          - unique:
+#              - False
+#      - last_name:
+#          - values:
+#              - random
+#          - unique:
+#              - False
+#      - email:
+#          - ignore:
+#            - True
+#      - age:
+#          - type: INT
+#          - values:
+#              - [22, 23, 55, 43, 108]
+#      - country_id:
+#          - type: INT
+#          - values:
+#              - [1, 2, 49, 2, 1]
+#      - is_famous:
+#          - type: BOOLEAN
+#          - values:
+#              - random

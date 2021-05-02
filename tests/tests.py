@@ -56,18 +56,18 @@ class TestBaseTest(TestCase):
         # check for valid statements
         expected = [(53.5, "USA"), (47.5, "Germany")]
         base_test = BaseTest(
-            path_test_setup="fixtures/run_base_test_setup.sql",
-            path_to_call="fixtures/run_base_test_call.sql",
+            path_test_setup="tests/fixtures/run_base_test_setup.sql",
+            path_to_call="tests/fixtures/run_base_test_call.sql",
             target="MEAN_AGE_PER_COUNTRY",
         )
 
         with base_test.run() as result:
             base_test.compare_table_values(result, expected)
 
-        # check for invalid sql statments
+        # check for invalid sql statements
         base_test = BaseTest(
-            path_test_setup="fixtures/run_base_test_setup_invalid.sql",
-            path_to_call="fixtures/run_base_test_call.sql",
+            path_test_setup="tests/fixtures/run_base_test_setup_invalid.sql",
+            path_to_call="tests/fixtures/run_base_test_call.sql",
             target="MEAN_AGE_PER_COUNTRY",
         )
 

@@ -4,9 +4,6 @@ from contextlib import contextmanager
 
 from sqlalchemy import MetaData, create_engine
 
-# todo: Check if tables in database exist
-# todo: Add cleanup for database via contextmanager
-
 
 class BaseTest:
     """Class for SQL testing
@@ -21,9 +18,10 @@ class BaseTest:
     :param path_test_setup: path to test setup with sql statements
     :param path_to_call: path to statement which shall be tested
     :param target: target table/view where the result can be found
+    :param engine: engine to use
     """
 
-    def __init__(self, path_test_setup, path_to_call, target):
+    def __init__(self, path_test_setup, path_to_call, target, engine=None):
 
         self.path_test_setup = path_test_setup
         self.path_to_call = path_to_call
@@ -33,7 +31,8 @@ class BaseTest:
         self.check_file_existence()
 
         # get sqlite engine for non dialect tests
-        self.engine = create_engine("sqlite://")
+        if engine is None:
+            self.engine = create_engine("sqlite://")
 
     def check_file_existence(self):
         """check if input files exist
@@ -52,42 +51,48 @@ class BaseTest:
                 raise FileNotFoundError(f"File {path} does not exist")
 
     @staticmethod
-    def read_sql_file(path, statement_separator=";"):
+    def read_sql_file(path, statement_separator=";", mapping_dict=None):
         """Read provided sql file"""
         with open(path, "r") as file:
             file_content = file.read()
 
         return file_content.split(statement_separator)
 
-    @staticmethod
-    def execute_multiple_statement(conn, statements):
+    def execute_files(self, path_to_file, conn):
         """Execute multiple sql statements"""
+
+        # read sql file
+        statements = self.read_sql_file(path_to_file)
+
         for statement in statements:
-            conn.execute(statement)
+            if len(statement.replace(" ", "")) > 0:
+                conn.execute(statement)
+
+    def _get_db_obj_by_name(self, engine, name):
+        """search a db object like a view or table by name"""
+        meta_data = self._get_db_objects(engine)
+        return meta_data.tables[name]
 
     @staticmethod
-    def search_db_obj_by_name(engine, name):
-        """search a db object like a view or table by name"""
+    def _get_db_objects(engine):
+        """search db objects like views or tables"""
         meta_data = MetaData(engine)
         meta_data.reflect(views=True)
-        return meta_data.tables[name]
+        return meta_data
 
     @contextmanager
     def run(self):
         """run test"""
 
-        statements_test_setup = self.read_sql_file(self.path_test_setup)
-        statements_main_call = self.read_sql_file(self.path_to_call)
-
         with self.engine.begin() as conn:
             # execute multiple sql statements to setup testing
-            self.execute_multiple_statement(conn, statements_test_setup)
+            self.execute_files(conn=conn, path_to_file=self.path_test_setup)
 
             # execute main sql statement which shall be tested
-            self.execute_multiple_statement(conn, statements_main_call)
+            self.execute_files(conn=conn, path_to_file=self.path_to_call)
 
             # get target table instance
-            target_table_instance = self.search_db_obj_by_name(conn, self.target)
+            target_table_instance = self._get_db_obj_by_name(conn, self.target)
 
             # get all entries in table and yield the result
             yield conn.execute(target_table_instance.select()).all()
@@ -100,10 +105,3 @@ class BaseTest:
             assert exp == tar, (
                 f"Expected (={exp}) and result (={tar}) is not " f"the same"
             )
-
-
-# class SqlStatementProperties:
-#     PRE_TABLE_STATEMENTS = ['select', 'join']
-#
-#     def __init__(self, statement):
-#         self.statement = statement
