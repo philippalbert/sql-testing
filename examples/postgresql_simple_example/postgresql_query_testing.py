@@ -1,3 +1,4 @@
+from pathlib import Path
 from pprint import pprint
 
 import sqlalchemy
@@ -13,9 +14,12 @@ def test_your_function():
         "postgresql://philipp:philipp@localhost:5432/postgres"
     )
 
+    # get path to specific example folder
+    path = Path(__file__).parent
+
     db_specific_test = DbSpecificTest(
-        path_test_setup="./examples/postgresql_simple_example/postgresql_example_setup.sql",
-        path_to_call="./examples/postgresql_simple_example/postgresql_example_call.sql",
+        path_test_setup=str(path / Path("postgresql_example_setup.sql")),
+        path_to_call=str(path / Path("postgresql_example_call.sql")),
         target="famous_people",
         engine=engine,
     )
