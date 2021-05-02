@@ -1,16 +1,9 @@
-import logging
-import random
-import string
 from contextlib import contextmanager
-from pathlib import Path
 from re import sub
 
-import yaml
-from sqlalchemy import insert
-from sqlalchemy.schema import CreateTable
-
 from .base_test import BaseTest
-from .sql_statement_properties import SqlStatementProperties, YamlProperties
+from .sql_statement_properties import SqlStatementProperties
+from .utils import get_random_suffix
 
 
 class DbSpecificTest(BaseTest):
@@ -22,30 +15,14 @@ class DbSpecificTest(BaseTest):
         super().__init__(path_test_setup, path_to_call, target, engine)
 
         # create instances which include information about provided queries
-        self.setup_properties = self._get_object_names_from_files(
-            self.path_test_setup, is_call_file=False
-        )
-        self.call_properties = self._get_object_names_from_files(
-            self.path_to_call, is_call_file=True
-        )
+        self.setup_properties = self._get_object_names_from_files(self.path_test_setup)
+        self.call_properties = self._get_object_names_from_files(self.path_to_call)
 
-    def _get_object_names_from_files(self, path, is_call_file=False):
+    def _get_object_names_from_files(self, path):
 
         if path.split(".")[-1] == "sql":
             return SqlStatementProperties(self.read_sql_file(path))
-        elif path.split(".")[-1] in ["yaml", "yml"]:
-            if not is_call_file:
-                return YamlProperties(self.read_yaml_file(path))
-            NotImplementedError("Call file type should be sql")
-
-        NotImplementedError("Setup is not implemented for this file type")
-
-    @staticmethod
-    def _get_random_suffix(length=5):
-        """Create a random db object suffix"""
-        chars = string.ascii_lowercase + string.digits
-        random_choice = "".join(random.choice(chars) for _ in range(length))
-        return random_choice
+        NotImplementedError("File type should be sql")
 
     @staticmethod
     def _get_obj_mapping(suffix, obj_names):
@@ -96,122 +73,8 @@ class DbSpecificTest(BaseTest):
             for statement in statements:
                 if len(statement.replace(" ", "")) > 0:
                     conn.execute(statement)
-
-        elif file_type == "yaml" or path_to_file.split(".")[-1] == "yml":
-            config = self.read_yaml_file(path_to_file)
-            self.create_tables_from_yaml(conn, config.get("tables"), mapping_dict)
         else:
             raise TypeError(f"Execution of file type {file_type} is not implemented.")
-
-    def create_tables_from_yaml(self, conn, table_config, mapping_dict):
-        """Create tables from yaml config"""
-
-        string_to_store = ""
-        for key, val in table_config.items():
-
-            # get table object we want to copy
-            table_obj = self._get_db_obj_by_name(conn, key)
-
-            # copy an existing structure if flag exists is set to True
-            if val.get("exists"):
-                string_to_store += self._copy_existing_table(
-                    conn, table_obj, mapping_dict, val.get("number_of_rows")
-                )
-
-            else:
-                NotImplementedError(
-                    "Sorry, but for now no table creation with yaml is implemented"
-                )
-
-        # store results in sql file
-        self._store_stmt_in_sql_file(
-            self.path_test_setup, string_to_store, mapping_dict
-        )
-
-    @staticmethod
-    def _store_stmt_in_sql_file(path: str, statement: str, mapping_dict: dict):
-        """Store a statement extracted from yaml file in sql"""
-        # create path variable
-        path = Path(path)
-
-        # change suffix as we want to store in a .sql file
-        path = path.parent / (path.stem + ".sql")
-
-        # invert created suffix back to normal table name
-        for key, val in mapping_dict.items():
-            statement = statement.replace(val, key)
-
-        with open(path, "w") as file:
-            file.write(statement)
-
-    def _copy_existing_table(self, conn, table_obj, mapping_dict, number_of_rows=-1):
-        """Copy an existing table structure with an additional suffix"""
-
-        # create statement string
-        statement_str = ""
-
-        # store rows of original table
-        table_entries = conn.execute(table_obj.select()).all()
-
-        # take all data or just a subset of the original table
-        if number_of_rows != -1:
-            try:
-                test_entries = random.sample(table_entries, number_of_rows)
-            except ValueError:
-                logging.error(
-                    "Number of rows specified in yaml file exceeds rows in table"
-                )
-                raise
-        else:
-            # in case of no subset take the whole data set, hence all entries
-            # in table
-            test_entries = table_entries
-
-        # change name
-        table_obj.name = mapping_dict[table_obj.name]
-
-        # update constraints as we have to make sure that constraints
-        # are not named equally to already existing ones
-        self._change_table_constraints(table_obj, mapping_dict)
-
-        # create table object, store it and execute it
-        # table_obj.create(conn)
-        create_res = CreateTable(table_obj, bind=conn)
-        conn.execute(create_res)
-
-        # add result of create table statement to statement string
-        statement_str += str(create_res) + ";\n"
-
-        # add subset of entries
-        for s in test_entries:
-            insert_res = insert(table_obj, values=s, bind=conn)
-
-            # store insert statements in statement string
-            statement_str += str(insert_res) % s + ";\n"
-
-            conn.execute(table_obj.insert(s))
-
-        return statement_str
-
-    @staticmethod
-    def _change_table_constraints(table_obj, mapping_dict):
-        """Change name of table constraints"""
-        new_constraints = []
-        for c in table_obj.constraints:
-            constraint = c
-            constraint.name = (
-                constraint.name + "_" + list(mapping_dict.values())[0].split("_")[-1]
-            )
-            new_constraints.append(constraint)
-
-    @staticmethod
-    def read_yaml_file(path):
-        """Read provided yaml file"""
-
-        with open(path, "r") as stream:
-            setup_config = yaml.safe_load(stream)
-
-        return setup_config
 
     def _get_test_table_mapping_info(self):
         """Get mapping information and ensure test table name is not equal to existing tables"""
@@ -219,7 +82,7 @@ class DbSpecificTest(BaseTest):
         # exist in db
         while True:
             # get a random suffix for tables
-            suffix = self._get_random_suffix(5)
+            suffix = get_random_suffix(5)
 
             # get all views and tables mentioned in query files
             query_objects = self._get_all_query_objects()
@@ -250,7 +113,6 @@ class DbSpecificTest(BaseTest):
             # execute firstly multiple sql statements to setup testing and secondly
             # the main sql statement
             for paths in [self.path_test_setup, self.path_to_call]:
-
                 self.execute_files(
                     conn=connection,
                     path_to_file=paths,
